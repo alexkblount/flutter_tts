@@ -1,10 +1,13 @@
 # tts
 
-A new flutter plugin project.
+A text to speech plugin for flutter. Initial implementation, more to come. :)
 
 ## Getting Started
 
-For help getting started with Flutter, view our online
-[documentation](http://flutter.io/).
+```dart
 
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
+import 'package:tts/tts.dart';
+
+Tts.speak(controller.text);
+
+```
