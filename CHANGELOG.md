@@ -1,3 +1,3 @@
-## [0.0.1] - TODO: Add release date.
+## [0.0.1] - 2/4/2018.
 
-* TODO: Describe initial release.
+* TODO: initial release with basic speech functionality.
