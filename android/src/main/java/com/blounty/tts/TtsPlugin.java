@@ -9,9 +9,14 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import android.app.Activity;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
-import android.content.Intent;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
+
 import android.widget.Toast;
+
 /**
  * TtsPlugin
  */
@@ -26,10 +31,6 @@ public class TtsPlugin implements MethodCallHandler, OnInitListener {
     final MethodChannel channel = new MethodChannel(registrar.messenger(), "github.com/blounty-ak/tts");
 
     channel.setMethodCallHandler(new TtsPlugin(registrar.activity()));
-    Intent checkTTSIntent = new Intent();
-
-    checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-      registrar.activity().startActivityForResult(checkTTSIntent, MY_DATA_CHECK_CODE);
   }
 
     private TtsPlugin(Activity activity) {
@@ -39,19 +40,27 @@ public class TtsPlugin implements MethodCallHandler, OnInitListener {
 //plugin.
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    String text = call.argument("text");
     if (call.method.equals("speak")) {
+      String text = call.argument("text");
       speak(text);
-    } else {
+    } else if (call.method.equals("isLanguageAvailable")) {
+      String language = call.argument("language");
+      final Boolean isAvailable = isLanguageAvailable(language);
+      result.success(isAvailable);
+    } else if (call.method.equals("setLanguage")) {
+        String language = call.argument("language");
+        final Boolean success = setLanguage(language);
+        result.success(success);
+    } else if (call.method.equals("getAvailableLanguages")) {
+        result.success(getAvailableLanguages());
+    }
+    else {
       result.notImplemented();
     }
   }
 
 public void onInit(int initStatus) {
-  if (initStatus == TextToSpeech.SUCCESS) {
-      myTTS.setLanguage(Locale.US);
-  }
-  else if (initStatus == TextToSpeech.ERROR) {
+  if (initStatus == TextToSpeech.ERROR) {
     Toast.makeText(this.activity, "Sorry! Text To Speech failed...", Toast.LENGTH_LONG).show();
   }
 }
@@ -59,4 +68,49 @@ public void onInit(int initStatus) {
   void speak(String text) {
     myTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
   }
+
+  Boolean isLanguageAvailable(String locale) {
+    Boolean isAvailable = false;
+    try {
+      isAvailable = myTTS.isLanguageAvailable(stringToLocale(locale)) == TextToSpeech.LANG_COUNTRY_AVAILABLE;
+    } finally {
+      return isAvailable;
+    }
+  }
+
+  Boolean setLanguage(String locale) {
+      Boolean success = false;
+      try {
+          myTTS.setLanguage(stringToLocale(locale));
+          success = true;
+      } finally {
+          return success;
+      }
+
+  }
+
+    List<String> getAvailableLanguages() {
+      Locale[] locales = Locale.getAvailableLocales();
+      List<String> localeList = new ArrayList<String>();
+      for (Locale locale : locales) {
+          int res = myTTS.isLanguageAvailable(locale);
+          if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
+              localeList.add(locale.toString().replace("_", "-"));
+          }
+      }
+      return localeList;
+  }
+
+  private Locale stringToLocale(String locale) {
+    String l = null;
+    String c = null;
+    StringTokenizer tempStringTokenizer = new StringTokenizer(locale,"-");
+    if(tempStringTokenizer.hasMoreTokens()){
+      l = tempStringTokenizer.nextElement().toString();
+    }
+    if(tempStringTokenizer.hasMoreTokens()){
+      c = tempStringTokenizer.nextElement().toString();
+    }
+    return new Locale(l,c);
+}
 }
