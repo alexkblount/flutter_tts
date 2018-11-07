@@ -1,6 +1,6 @@
 name: tts
 description: A text to speech plugin for flutter.
-version: 1.0.1
+version: 1.0.2
 author: Alex Blount <blountyak@gmail.com>
 homepage: https://alexblount.com/
 
@@ -18,4 +18,4 @@ flutter:
     pluginClass: TtsPlugin
 
 environment:
-  sdk: ">=1.8.0 <=2.0.0"
+  sdk: ">=2.0.0 <=3.0.0"

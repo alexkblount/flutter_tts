@@ -13,6 +13,7 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import android.widget.Toast;
@@ -90,13 +91,10 @@ public void onInit(int initStatus) {
   }
 
     List<String> getAvailableLanguages() {
-      Locale[] locales = Locale.getAvailableLocales();
+      Set<Locale> locales = myTTS.getAvailableLanguages();
       List<String> localeList = new ArrayList<String>();
       for (Locale locale : locales) {
-          int res = myTTS.isLanguageAvailable(locale);
-          if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
-              localeList.add(locale.toString().replace("_", "-"));
-          }
+            localeList.add(locale.toString().replace("_", "-"));
       }
       return localeList;
   }
